@@ -15,9 +15,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 config = context.config
 
 # Importações da aplicação WorkoutAPI
-try:
-    from workoutapi.database.database import Base
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "workoutapi"))
 
+try:
+    from database.database import Base
     target_metadata = Base.metadata
 except ImportError:
     # Fallback caso não encontre os modelos
@@ -26,8 +27,6 @@ except ImportError:
 # Configura logging se disponível
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-
-target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
