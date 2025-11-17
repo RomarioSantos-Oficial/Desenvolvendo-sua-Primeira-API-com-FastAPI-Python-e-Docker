@@ -1,0 +1,88 @@
+# WorkoutAPI - Configuração do Alembic
+
+## 🔄 Migração Docker → SQLite
+
+Esta configuração do Alembic foi adaptada para usar **SQLite** como substituto do **PostgreSQL** definido no `docker-compose.yml`.
+
+### 📋 Mudanças Implementadas:
+
+#### **🐳 Configuração Original (Docker Compose)**:
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: workout_db
+    environment:
+      POSTGRES_USER: workout
+      POSTGRES_PASSWORD: workout
+      POSTGRES_DB: workout
+    ports:
+      - "5432:5432"
+```
+
+#### **🗃️ Configuração Atual (SQLite)**:
+```ini
+# alembic.ini
+sqlalchemy.url = sqlite:///workoutapi/database/workout.db
+
+# .env
+DB_USER=workout          # Baseado em POSTGRES_USER
+DB_PASSWORD=workout      # Baseado em POSTGRES_PASSWORD  
+DB_NAME=workout          # Baseado em POSTGRES_DB
+```
+
+### 🔧 Vantagens da Mudança:
+
+| Aspecto | Docker/PostgreSQL | SQLite |
+|---------|------------------|--------|
+| **Instalação** | Requer Docker | Nativo do Python |
+| **Configuração** | docker-compose.yml | Arquivo local |
+| **Credenciais** | Container | Mesmas do docker-compose |
+| **Performance** | Servidor dedicado | Arquivo local rápido |
+| **Desenvolvimento** | Complexo | Simples |
+| **Portabilidade** | Dependente Docker | Funciona em qualquer lugar |
+
+### 📂 Estrutura de Arquivos:
+```
+WORKOUT_API/
+├── alembic/                    # Migrações do banco
+│   ├── env.py                 # Configuração adaptada
+│   ├── versions/              # Histórico de migrações
+│   └── alembic.ini           # URL do SQLite
+├── workoutapi/
+│   ├── database/
+│   │   └── database.py       # Modelos SQLAlchemy
+│   └── .env                  # Credenciais do docker-compose
+└── workout.db                # Banco SQLite (criado automaticamente)
+```
+
+### 🚀 Comandos Disponíveis:
+
+```bash
+# Histórico de migrações
+workoutapi\Scripts\python.exe -m alembic history
+
+# Criar nova migração
+workoutapi\Scripts\python.exe -m alembic revision --autogenerate -m "Descrição"
+
+# Aplicar migrações
+workoutapi\Scripts\python.exe -m alembic upgrade head
+
+# Status atual
+workoutapi\Scripts\python.exe -m alembic current
+```
+
+### 🔑 Credenciais Mantidas:
+As credenciais definidas no `docker-compose.yml` foram preservadas:
+- **Username**: `workout` (POSTGRES_USER)
+- **Password**: `workout` (POSTGRES_PASSWORD)
+- **Database**: `workout` (POSTGRES_DB)
+
+### ✅ Resultado:
+- ✅ Mesmo sistema de autenticação
+- ✅ Mesmas credenciais
+- ✅ Funcionalidade completa
+- ✅ Sem dependência do Docker
+- ✅ Desenvolvimento mais ágil
+
+**Conclusão**: SQLite substitui completamente o PostgreSQL mantendo a compatibilidade com as configurações originais do docker-compose.yml.
