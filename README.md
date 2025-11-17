@@ -458,6 +458,4 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 ---
 
 
-**Desenvolvido com ❤️ usando FastAPI e SQLite**#   D e s e n v o l v e n d o - s u a - P r i m e i r a - A P I - c o m - F a s t A P I - P y t h o n - e - D o c k e r 
- 
- 
+**Desenvolvido com ❤️ usando FastAPI e SQLite**#
