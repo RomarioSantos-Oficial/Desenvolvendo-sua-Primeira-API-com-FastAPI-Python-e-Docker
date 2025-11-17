@@ -7,4 +7,4 @@ class CategoriaIn(BaseSchema):
      nome: Annotated[str, Field(description="Nome da Categoria", example="Scale", max_length=10)]
      
 class CategoriaOut(CategoriaIn):
-    id: Annotated[UUID4, Field(description="ID da Categoria")]
+    id: Annotated[UUID4, Field(description="ID da Categoria", example="550e8400-e29b-41d4-a716-446655440001")]

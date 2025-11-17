@@ -367,3 +367,97 @@ Este projeto foi feito com muito ❤️ para que você tenha a melhor experiênc
 **⭐ Se este projeto te ajudou, deixe uma estrela no GitHub!**
 
 **🤝 Conecte-se, compartilhe e continue aprendendo!**
+├── run.ps1                    # Script PowerShell
+├── docker-compose.yml         # Docker (opcional)
+└── README.md                  # Esta documentação
+```
+
+## 🛠️ Comandos Make Disponíveis
+
+### 📚 Principais
+- `make run` - Servidor produção
+- `make dev` - Servidor desenvolvimento  
+- `make setup` - Configuração completa
+- `make install` - Instalar dependências
+
+### 🗄️ Banco de dados
+- `make db-shell` - Shell SQLite
+- `make db-tables` - Listar tabelas
+- `make db-users` - Ver usuários
+- `make db-workouts` - Ver workouts
+- `make db-backup` - Backup
+
+### 🛠️ Manutenção
+- `make clean` - Limpar arquivos temporários
+- `make status` - Status do projeto
+- `make freeze` - Atualizar requirements.txt
+- `make help` - Ver todos os comandos
+
+## 🔧 Desenvolvimento
+
+### Adicionar nova dependência
+
+```bash
+# Instalar no ambiente
+cd workoutapi
+.\Scripts\pip.exe install nova-dependencia
+
+# Atualizar requirements.txt
+make freeze
+```
+
+### Limpar ambiente
+
+```bash
+# Limpar arquivos temporários
+make clean
+
+# Recriar ambiente virtual (CUIDADO!)
+make reset-env
+```
+
+## 📊 Status do Projeto
+
+```bash
+make status
+```
+
+## 🐳 Docker (Opcional)
+
+```bash
+# Subir containers
+make docker-up
+
+# Parar containers
+make docker-down
+
+# Ver logs
+make docker-logs
+```
+
+## 📝 Dependências Principais
+
+- **FastAPI** - Framework web moderno
+- **Uvicorn** - Servidor ASGI
+- **SQLAlchemy** - ORM para banco de dados
+- **Pydantic** - Validação de dados
+- **python-dotenv** - Gerenciamento de variáveis de ambiente
+
+## 🤝 Contribuição
+
+1. Fork do projeto
+2. Criar branch para feature (`git checkout -b feature/nova-feature`)
+3. Commit das mudanças (`git commit -am 'Add nova feature'`)
+4. Push para branch (`git push origin feature/nova-feature`)
+5. Criar Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+
+---
+
+
+**Desenvolvido com ❤️ usando FastAPI e SQLite**#   D e s e n v o l v e n d o - s u a - P r i m e i r a - A P I - c o m - F a s t A P I - P y t h o n - e - D o c k e r 
+ 
+ 
