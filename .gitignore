@@ -35,3 +35,6 @@ Thumbs.db
 # Configurações locais específicas
 .env.local
 .env.production
+
+
+README_OLD.md
