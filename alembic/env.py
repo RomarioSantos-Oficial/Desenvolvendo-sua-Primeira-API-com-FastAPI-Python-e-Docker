@@ -1,10 +1,8 @@
 import sys
 import os
-import asyncio
 from logging.config import fileConfig
 
 from sqlalchemy import pool
-from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.engine import Connection
 from alembic import context
 
@@ -61,22 +59,31 @@ def do_run_migrations(connection: Connection) -> None:
         context.run_migrations()  # pylint: disable=no-member
 
 
-async def run_async_migrations() -> None:
-    """Executa migrações de forma assíncrona"""
-    database_url = config.get_main_option("sqlalchemy.url")
-    connectable = create_async_engine(database_url, poolclass=pool.NullPool)
-
-    async with connectable.connect() as connection:
-        await connection.run_sync(do_run_migrations)
-    
-    await connectable.dispose()
-
-
 def run_migrations_online() -> None:
     """
-    Executa migrações em modo online com suporte async/sync
+    Executa migrações em modo online de forma síncrona
     """
-    asyncio.run(run_async_migrations())
+    database_url = config.get_main_option("sqlalchemy.url")
+    
+    # Para SQLite, usar engine síncrono
+    if database_url.startswith("sqlite"):
+        from sqlalchemy import create_engine
+        connectable = create_engine(database_url, poolclass=pool.NullPool)
+        
+        with connectable.connect() as connection:
+            do_run_migrations(connection)
+    else:
+        # Para outros bancos, manter async
+        import asyncio
+        from sqlalchemy.ext.asyncio import create_async_engine
+        
+        async def run_async_migrations():
+            connectable = create_async_engine(database_url, poolclass=pool.NullPool)
+            async with connectable.connect() as connection:
+                await connection.run_sync(do_run_migrations)
+            await connectable.dispose()
+        
+        asyncio.run(run_async_migrations())
 
 
 # Executa migrações baseado no modo (offline ou online)

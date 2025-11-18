@@ -1,9 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Body
-from pydantic import UUID4
 from contrib.dependencies import DatabaseDependency
 from categorias.schemas import CategoriaIn, CategoriaOut
 from categorias.models import CategoriaModel
-from uuid import uuid4
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,12 +20,23 @@ async def post(
     categoria_in: CategoriaIn = Body(...)
 ) -> CategoriaOut:
     
-    categoria_out =  CategoriaOut(id=uuid4(), **categoria_in.model_dump())
-    categoria_model = CategoriaModel(**categoria_out.model_dump())
+    # Verificar se categoria já existe
+    existing_categoria = (await db_session.execute(
+        select(CategoriaModel).filter_by(nome=categoria_in.nome)
+    )).scalars().first()
+    
+    if existing_categoria:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f'Já existe uma categoria com nome: {categoria_in.nome}'
+        )
+    
+    categoria_model = CategoriaModel(**categoria_in.model_dump())
     db_session.add(categoria_model)
     await db_session.commit()
+    await db_session.refresh(categoria_model)
     
-    return categoria_out
+    return CategoriaOut.model_validate(categoria_model)
 
 @router.get(
     "/", 
@@ -36,9 +45,9 @@ async def post(
     response_model=list[CategoriaOut]
 )
 async def query(db_session: DatabaseDependency) -> list[CategoriaOut]:  
-    categorias: list[CategoriaOut] = (await db_session.execute(select(CategoriaModel))).scalars().all()
+    categorias: list[CategoriaModel] = (await db_session.execute(select(CategoriaModel))).scalars().all()
 
-    return categorias
+    return [CategoriaOut.model_validate(categoria) for categoria in categorias]
 
 @router.get(
     "/{id}",
@@ -46,8 +55,8 @@ async def query(db_session: DatabaseDependency) -> list[CategoriaOut]:
     status_code=status.HTTP_200_OK,
     response_model= CategoriaOut,
 )
-async def get_by_id(id: UUID4, db_session: DatabaseDependency) -> CategoriaOut:
-    categoria: CategoriaOut = (await db_session.execute(select(CategoriaModel).filter_by(id=id))).scalars().first()
+async def get_by_id(id: int, db_session: DatabaseDependency) -> CategoriaOut:
+    categoria: CategoriaModel = (await db_session.execute(select(CategoriaModel).filter_by(id=id))).scalars().first()
     
     if not categoria:
         raise HTTPException(
@@ -55,4 +64,4 @@ async def get_by_id(id: UUID4, db_session: DatabaseDependency) -> CategoriaOut:
             detail=f"Categoria não encontrada no ID {id}"
         )
     
-    return categoria
+    return CategoriaOut.model_validate(categoria)

@@ -1,7 +1,5 @@
 from datetime import datetime
-from uuid import uuid4
 from fastapi import APIRouter, Body, HTTPException, status
-from pydantic import UUID4
 
 from atleta.schemas import AtletaIn, AtletaOut, AtletaUpdate
 from atleta.models import AtletaModel
@@ -46,21 +44,21 @@ async def post(
             detail=f'O centro de treinamento {centro_treinamento_nome} não foi encontrado.'
         )
     try:
-        atleta_out = AtletaOut(id=uuid4(), created_at=datetime.utcnow(), **atleta_in.model_dump())
-        atleta_model = AtletaModel(**atleta_out.model_dump(exclude={'categoria', 'centro_treinamento'}))
+        atleta_model = AtletaModel(**atleta_in.model_dump(exclude={'categoria', 'centro_treinamento'}))
 
-        atleta_model.categoria_id = categoria.pk_id
-        atleta_model.centro_treinamento_id = centro_treinamento.pk_id
+        atleta_model.categoria_id = categoria.id
+        atleta_model.centro_treinamento_id = centro_treinamento.id
         
         db_session.add(atleta_model)
         await db_session.commit()
+        await db_session.refresh(atleta_model)
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
             detail='Ocorreu um erro ao inserir os dados no banco'
         )
 
-    return atleta_out
+    return AtletaOut.model_validate(atleta_model)
 
 
 @router.get(
@@ -81,7 +79,7 @@ async def query(db_session: DatabaseDependency) -> list[AtletaOut]:
     status_code=status.HTTP_200_OK,
     response_model=AtletaOut,
 )
-async def get(id: UUID4, db_session: DatabaseDependency) -> AtletaOut:
+async def get(id: int, db_session: DatabaseDependency) -> AtletaOut:
     atleta: AtletaModel = (
         await db_session.execute(select(AtletaModel).filter_by(id=id))
     ).scalars().first()
@@ -101,7 +99,7 @@ async def get(id: UUID4, db_session: DatabaseDependency) -> AtletaOut:
     status_code=status.HTTP_200_OK,
     response_model=AtletaOut,
 )
-async def patch(id: UUID4, db_session: DatabaseDependency, atleta_up: AtletaUpdate = Body(...)) -> AtletaOut:
+async def patch(id: int, db_session: DatabaseDependency, atleta_up: AtletaUpdate = Body(...)) -> AtletaOut:
     atleta: AtletaModel = (
         await db_session.execute(select(AtletaModel).filter_by(id=id))
     ).scalars().first()
@@ -127,7 +125,7 @@ async def patch(id: UUID4, db_session: DatabaseDependency, atleta_up: AtletaUpda
     summary='Deletar um Atleta pelo id',
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def delete(id: UUID4, db_session: DatabaseDependency) -> None:
+async def delete(id: int, db_session: DatabaseDependency) -> None:
     atleta: AtletaModel = (
         await db_session.execute(select(AtletaModel).filter_by(id=id))
     ).scalars().first()
