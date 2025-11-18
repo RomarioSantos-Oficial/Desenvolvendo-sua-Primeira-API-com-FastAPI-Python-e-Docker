@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from engine import engine_app, initialize_engine
 from routers import api_router
 # from database.seed_data import create_seed_data
@@ -9,6 +10,15 @@ app = FastAPI(
     title="WorkoutAPI",
     description="API de treinos com configurações do docker-compose.yml adaptadas para SQLite",
     version="1.0.0"
+)
+
+# Configuração CORS para permitir requisições do frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # Frontend Vite
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_headers=["*"],
 )
 
 # Inclui os roteadores da API
